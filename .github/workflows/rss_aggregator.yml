@@ -1,0 +1,38 @@
+name: "rss_aggregator"
+on:
+  schedule:
+  - cron: "0 4 * * *"
+  
+  push:
+    branches:
+      - main
+
+jobs:
+  rss_aggregator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install feedparser lxml
+
+      - name: Setup identity
+        run: |
+          git config --global user.email "bot@example.com"
+          git config --global user.name "Github Actions"
+
+      - name: Checkout master branch
+        uses: actions/checkout@v2
+
+      - name: Run rss_aggregator.py
+        run: python rss_aggregator.py
+  
+      - name: Commit and Push
+        run: (git add rss.xml &&
+          git commit -m 'rss.xml update' &&
+          git push) || true
